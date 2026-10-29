@@ -1,0 +1,22 @@
+name: Plugin integration
+on:
+  push:
+    paths-ignore: ['docs/**', '**/*.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**/*.md']
+permissions:
+  contents: read
+jobs:
+  wordpress-edd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm test
+      - if: always()
+        run: docker compose logs --no-color --tail=150
+      - if: always()
+        run: docker compose down

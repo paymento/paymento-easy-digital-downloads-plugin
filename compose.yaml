@@ -1,0 +1,74 @@
+name: paymento-edd
+services:
+  db:
+    image: mariadb:11.4@sha256:d1891ede5a559f1086f55053bb8cc1569b0298338c4d72d71725a7f74f6ba620
+    environment:
+      MARIADB_ROOT_PASSWORD: synthetic-root-password
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: synthetic-wordpress-password
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+  mock:
+    image: node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
+    command: [node, /app/mock-paymento.mjs]
+    volumes:
+      - ./tests/mock-paymento.mjs:/app/mock-paymento.mjs:ro
+    ports:
+      - 127.0.0.1:18081:3000
+  wordpress:
+    image: wordpress:php8.2-apache@sha256:2afc151e1a9bdd07eced825e44b5a7e5fc5b8fb0d1ad299d5a5bcd6c294efeb7
+    depends_on:
+      db:
+        condition: service_healthy
+      mock:
+        condition: service_started
+    ports:
+      - 127.0.0.1:18080:80
+    environment: &wordpress-env
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: synthetic-wordpress-password
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ENVIRONMENT_TYPE', 'local');
+        define('PAYMENTO_EDD_API_KEY', 'synthetic-api-key');
+        define('PAYMENTO_EDD_IPN_SECRET', 'synthetic-ipn-secret');
+        define('PAYMENTO_EDD_API_BASE', 'http://mock:3000');
+        define('PAYMENTO_EDD_CHECKOUT_BASE', 'http://localhost:18081/gateway');
+        define('DISABLE_WP_CRON', true);
+    volumes:
+      - wordpress:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/paymento-easy-digital-downloads:ro
+  cli:
+    image: wordpress:cli-php8.2@sha256:66dc799c76149c6b19e7404fd2f92d617d95658832f192c7c7f13f735dd6413e
+    entrypoint: [wp]
+    user: '33:33'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *wordpress-env
+    volumes:
+      - wordpress:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/paymento-easy-digital-downloads:ro
+  worker:
+    image: wordpress:cli-php8.2@sha256:66dc799c76149c6b19e7404fd2f92d617d95658832f192c7c7f13f735dd6413e
+    user: '33:33'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment: *wordpress-env
+    volumes:
+      - wordpress:/var/www/html
+      - ./:/var/www/html/wp-content/plugins/paymento-easy-digital-downloads:ro
+    entrypoint: [/bin/sh, -c]
+    command: ['while true; do wp cron event run --due-now --quiet; sleep 60; done']
+    profiles: [worker]
+volumes:
+  database:
+  wordpress:

@@ -1,0 +1,8 @@
+{
+  "name": "paymento-easy-digital-downloads-plugin-tests",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": { "test": "node scripts/test.mjs", "package": "node scripts/package.mjs" },
+  "engines": { "node": ">=22" }
+}
