@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to: 7.1
 Requires Plugins: easy-digital-downloads
 Requires PHP: 8.2
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ One-time payments only. No recurring payments or refunds started from WordPress.
 == Installation ==
 1. Install and activate Easy Digital Downloads.
 2. Upload this plugin's ZIP under Plugins > Add New > Upload Plugin and activate it.
-3. Go to Settings > Paymento EDD. Choose the environment, enter your Paymento store's API key and IPN secret (or define PAYMENTO_EDD_API_KEY and PAYMENTO_EDD_IPN_SECRET in wp-config.php), set the payment expiry, and save.
+3. Go to Settings > Paymento EDD. Enter your Paymento store's API key and IPN secret (or define PAYMENTO_EDD_API_KEY and PAYMENTO_EDD_IPN_SECRET in wp-config.php), set the payment expiry, and save.
 4. Click "Configure Paymento callback". Your site must be on public HTTPS. Use a separate Paymento store for each website.
 5. Enable Paymento under Downloads > Settings > Payments.
 6. Recommended: run `wp cron event run --due-now` every minute from a server cron job so failed notifications are retried promptly.
@@ -40,5 +40,8 @@ Constants in wp-config.php are preferred. Keys saved in the dashboard are encryp
 This plugin uses the Paymento API (https://api.paymento.io). When a customer checks out, it sends the order ID, amount, currency, customer email, return URL and payment expiry to Paymento and redirects the customer to Paymento's hosted checkout. Paymento sends signed payment status notifications back to your site. Terms: https://paymento.io — API documentation: https://docs.paymento.io
 
 == Changelog ==
+= 1.0.1 =
+Removed the Environment setting; the plugin always uses Paymento production.
+
 = 1.0.0 =
 First public release.
