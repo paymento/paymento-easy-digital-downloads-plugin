@@ -450,10 +450,9 @@ final class Paymento_EDD {
     }
 
     private function bases(): array {
-        $settings = get_option('paymento_edd_settings', array());
-        $beta = ($settings['environment'] ?? 'production') === 'beta';
-        $api = defined('PAYMENTO_EDD_API_BASE') ? PAYMENTO_EDD_API_BASE : ($beta ? 'https://beta-api.paymento.io' : 'https://api.paymento.io');
-        $checkout = defined('PAYMENTO_EDD_CHECKOUT_BASE') ? PAYMENTO_EDD_CHECKOUT_BASE : ($beta ? 'https://beta.paymento.io/gateway' : 'https://app.paymento.io/gateway');
+        // The constants point a test site at another Paymento environment; merchants use production.
+        $api = defined('PAYMENTO_EDD_API_BASE') ? PAYMENTO_EDD_API_BASE : 'https://api.paymento.io';
+        $checkout = defined('PAYMENTO_EDD_CHECKOUT_BASE') ? PAYMENTO_EDD_CHECKOUT_BASE : 'https://app.paymento.io/gateway';
         return array('api' => rtrim($api, '/'), 'checkout' => $checkout);
     }
 
@@ -488,11 +487,9 @@ final class Paymento_EDD {
 
     public function settings_page(): void {
         if (!current_user_can('manage_options')) { return; }
-        $settings = get_option('paymento_edd_settings', array());
         echo '<div class="wrap"><h1>Paymento for Easy Digital Downloads</h1><p>Save your Paymento API key and IPN secret, configure the callback, then enable Paymento under Downloads &gt; Settings &gt; Payments.</p>';
         echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '"><input type="hidden" name="action" value="paymento_edd_save">';
         wp_nonce_field('paymento_edd_save');
-        echo '<p><label>Environment <select name="environment"><option value="production"' . selected($settings['environment'] ?? '', 'production', false) . '>Production</option><option value="beta"' . selected($settings['environment'] ?? '', 'beta', false) . '>Beta</option></select></label></p>';
         echo '<p>Deployment constants override settings. Leave secret fields blank to retain the current encrypted value. Define PAYMENTO_EDD_API_KEY and PAYMENTO_EDD_IPN_SECRET in wp-config.php for managed deployments.</p>';
         echo '<p><label>API key <input autocomplete="new-password" type="password" name="api_key" value=""></label></p><p><label>IPN secret <input autocomplete="new-password" type="password" name="ipn_secret" value=""></label></p>';
         echo '<p><label>Payment expiry (hours) <input type="number" name="expiry_hours" min="1" max="168" value="' . esc_attr((string) $this->expiry_hours()) . '"></label> Unpaid orders are marked abandoned one hour after this. A late payment still completes the order.</p>';
@@ -508,7 +505,7 @@ final class Paymento_EDD {
         if (!current_user_can('manage_options')) { wp_die('Forbidden', '', array('response' => 403)); }
         check_admin_referer('paymento_edd_save');
         $settings = get_option('paymento_edd_settings', array());
-        $settings['environment'] = isset($_POST['environment']) && $_POST['environment'] === 'beta' ? 'beta' : 'production';
+        unset($settings['environment']); // Removed in 1.0.1; production only.
         if (isset($_POST['expiry_hours']) && is_string($_POST['expiry_hours']) && ctype_digit($_POST['expiry_hours'])) {
             $settings['expiry_hours'] = max(1, min(168, (int) $_POST['expiry_hours']));
         }

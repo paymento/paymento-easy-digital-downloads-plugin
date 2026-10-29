@@ -60,7 +60,7 @@ Paymento does not reliably notify for orders that are never paid, so expiry is e
 - **Settings page:** Settings > Paymento EDD. It requires `manage_options` and a nonce.
 - **Secrets:** the `PAYMENTO_EDD_API_KEY` / `PAYMENTO_EDD_IPN_SECRET` constants take precedence. Dashboard-saved secrets are encrypted with AES-256-GCM using a key derived from `wp_salt('auth')`, and are never shown again.
 - **Callback setup:** *Configure Paymento callback* reads the store's current settings first and refuses to replace a different callback URL. It then sets `ipN_URL` and `ipN_Method: 1`.
-- **Endpoints:** Production uses `api.paymento.io` and `app.paymento.io/gateway`; Beta uses `beta-api.paymento.io` and `beta.paymento.io/gateway`. The constants `PAYMENTO_EDD_API_BASE` / `PAYMENTO_EDD_CHECKOUT_BASE` override them, and exist for the local test setup only.
+- **Endpoints:** always `api.paymento.io` and `app.paymento.io/gateway`. The constants `PAYMENTO_EDD_API_BASE` / `PAYMENTO_EDD_CHECKOUT_BASE` override them for test setups, such as the local Docker fixture. Never point them at a service you don't trust: the API key is sent to that address.
 
 ## Known limits
 

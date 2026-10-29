@@ -32,7 +32,6 @@ Go to **Settings > Paymento EDD** (under the WordPress *Settings* menu, not the 
 
 | Setting | Value |
 |---|---|
-| Environment | **Production** (use **Beta** only if Paymento gave you beta access) |
 | API key / IPN secret | From step 1 |
 | Payment expiry (hours) | How long a customer has to pay. Default **24**. Unpaid orders are marked *Abandoned* one hour after this |
 
@@ -95,7 +94,7 @@ Notifications arrived but could not be processed yet. Make sure the cron job (st
 The Paymento store already sends notifications to another URL. Create a separate store for this website.
 
 **"Unable to start crypto payment."**
-Check the API key and that *Environment* matches the store (a beta key does not work on Production).
+Check that the API key is correct and belongs to an active Paymento store.
 
 ## Limits
 
