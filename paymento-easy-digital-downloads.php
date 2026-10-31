@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/paymento/paymento-easy-digital-downloads-plugin
  * Author: Paymento
  * Author URI: https://paymento.io
- * Version: 1.0.1
+ * Version: 1.0.2
  * Requires at least: 6.7
  * Requires PHP: 8.2
  * Requires Plugins: easy-digital-downloads
