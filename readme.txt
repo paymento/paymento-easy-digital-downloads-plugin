@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to: 7.1
 Requires Plugins: easy-digital-downloads
 Requires PHP: 8.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,9 +45,11 @@ This plugin uses the Paymento API (https://api.paymento.io). When a customer che
 * API documentation: https://docs.paymento.io
 
 == Changelog ==
+= 1.0.2 =
+Text domain changed to paymento-easy-digital-downloads to match the plugin slug. Settings input is sanitized.
+
 = 1.0.1 =
 Removed the Environment setting; the plugin always uses Paymento production.
-Text domain changed to paymento-easy-digital-downloads to match the plugin slug.
 
 = 1.0.0 =
 First public release.
