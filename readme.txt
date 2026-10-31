@@ -37,11 +37,17 @@ Paymento could not reach https://your-site/wp-json/paymento-edd/v1/ipn. Make sur
 Constants in wp-config.php are preferred. Keys saved in the dashboard are encrypted with AES-256-GCM using your WordPress authentication salt; if you change the salts, enter the keys again.
 
 == External service ==
-This plugin uses the Paymento API (https://api.paymento.io). When a customer checks out, it sends the order ID, amount, currency, customer email, return URL and payment expiry to Paymento and redirects the customer to Paymento's hosted checkout. Paymento sends signed payment status notifications back to your site. Terms: https://paymento.io — API documentation: https://docs.paymento.io
+This plugin uses the Paymento API (https://api.paymento.io). When a customer checks out, it sends the order ID, amount, currency, customer email, return URL and payment expiry to Paymento and redirects the customer to Paymento's hosted checkout. Paymento sends signed payment status notifications back to your site.
+
+* Service: https://paymento.io
+* Terms of service: https://paymento.io/term-of-service/
+* Privacy policy: https://paymento.io/privacy-policy/
+* API documentation: https://docs.paymento.io
 
 == Changelog ==
 = 1.0.1 =
 Removed the Environment setting; the plugin always uses Paymento production.
+Text domain changed to paymento-easy-digital-downloads to match the plugin slug.
 
 = 1.0.0 =
 First public release.
