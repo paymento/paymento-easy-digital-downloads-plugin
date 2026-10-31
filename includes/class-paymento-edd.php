@@ -2,6 +2,7 @@
 defined('ABSPATH') || exit;
 
 /** Native EDD adapter. Paymento is authoritative only after signed durable processing. */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Queries use the plugin's own tables ($wpdb->prefix + fixed names); every value goes through $wpdb->prepare(), and payment state must not be cached.
 final class Paymento_EDD {
     private static ?self $instance = null;
     private bool $registered = false;
@@ -237,10 +238,10 @@ final class Paymento_EDD {
         try {
             $result = $this->create_payment($purchaseData);
             edd_empty_cart();
-            wp_redirect($result['redirect'], 303, 'Paymento EDD');
+            wp_redirect($result['redirect'], 303, 'Paymento EDD'); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Off-site by design: Paymento's hosted checkout.
             exit;
         } catch (Throwable $error) {
-            edd_set_error('paymento_initialization', __('Unable to start crypto payment. Please try again or contact the store.', 'paymento-edd'));
+            edd_set_error('paymento_initialization', __('Unable to start crypto payment. Please try again or contact the store.', 'paymento-easy-digital-downloads'));
             edd_send_back_to_checkout('?payment-mode=paymento');
         }
     }
@@ -478,7 +479,7 @@ final class Paymento_EDD {
     }
 
     public function return_message(): string {
-        return '<p>' . esc_html__('Payment confirmation may take time. View your EDD receipt or contact the merchant if your downloads are not available yet.', 'paymento-edd') . '</p>';
+        return '<p>' . esc_html__('Payment confirmation may take time. View your EDD receipt or contact the merchant if your downloads are not available yet.', 'paymento-easy-digital-downloads') . '</p>';
     }
 
     public function admin_menu(): void {
@@ -506,12 +507,11 @@ final class Paymento_EDD {
         check_admin_referer('paymento_edd_save');
         $settings = get_option('paymento_edd_settings', array());
         unset($settings['environment']); // Removed in 1.0.1; production only.
-        if (isset($_POST['expiry_hours']) && is_string($_POST['expiry_hours']) && ctype_digit($_POST['expiry_hours'])) {
-            $settings['expiry_hours'] = max(1, min(168, (int) $_POST['expiry_hours']));
-        }
+        $hours = isset($_POST['expiry_hours']) ? absint(wp_unslash($_POST['expiry_hours'])) : 0;
+        if ($hours > 0) { $settings['expiry_hours'] = min(168, $hours); }
         foreach (array('api_key', 'ipn_secret') as $key) {
             if (isset($_POST[$key]) && is_string($_POST[$key]) && $_POST[$key] !== '') {
-                $settings[$key] = $this->encrypt(wp_unslash($_POST[$key]));
+                $settings[$key] = $this->encrypt(wp_unslash($_POST[$key])); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- A secret is stored encrypted exactly as entered; sanitizing could alter it.
             }
         }
         update_option('paymento_edd_settings', $settings, false);
@@ -522,7 +522,7 @@ final class Paymento_EDD {
     public function configure_ipn(): void {
         if (!current_user_can('manage_options')) { wp_die('Forbidden', '', array('response' => 403)); }
         check_admin_referer('paymento_edd_configure_ipn');
-        if (($_POST['confirm'] ?? '') !== '1') { wp_die('Explicit confirmation required.'); }
+        if (sanitize_text_field(wp_unslash($_POST['confirm'] ?? '')) !== '1') { wp_die('Explicit confirmation required.'); }
         try {
             $url = rest_url('paymento-edd/v1/ipn');
             if (wp_parse_url($url, PHP_URL_SCHEME) !== 'https') { throw new RuntimeException('Public HTTPS callback required.'); }

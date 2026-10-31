@@ -10,7 +10,7 @@
  * Requires PHP: 8.2
  * Requires Plugins: easy-digital-downloads
  * License: GPL-2.0-or-later
- * Text Domain: paymento-edd
+ * Text Domain: paymento-easy-digital-downloads
  */
 defined('ABSPATH') || exit;
 require_once __DIR__ . '/includes/class-paymento-edd.php';
